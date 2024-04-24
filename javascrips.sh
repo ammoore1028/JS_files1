@@ -10,7 +10,10 @@ wait
 # please write the domain in the script
 bash /root/tools/js_files/save2.sh
 wait
-for i in $(cat /root/tools/js_files/JS_files.txt); do python3 /tmp/LinkFinder/linkfinder.py -i "$i" -o cli >> /root/tools/js_files/wordlist.txt ;done
+git clone https://github.com/GerbenJavado/LinkFinder.git
+cd LinkFinder
+wait
+for i in $(cat /root/tools/js_files/JS_files.txt); do python3 /root/tools/js_files/LinkFinder/linkfinder.py -i "$i" -o cli >> /root/tools/js_files/wordlist.txt ;done
 
 cat  /usr/share/seclists/Discovery/Web-Content/common.txt  /root/tools/js_files/wordlist.txt > /root/tools/js_files/wordlists_temp.txt
 
