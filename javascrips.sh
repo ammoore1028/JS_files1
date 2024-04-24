@@ -1,24 +1,33 @@
-
-# Geeting all JavaScript files
 echo -e "\033[34m[+] Running Analysis JS [+]\033[0m"
-mkdir -p /root/tools/js_files/
-cd  /root/tools/js_files/
+ammar=$(pwd)  # Storing the current directory path
 
-# please write the domain in the script
-python3 /root/tools/js_files/URLs.py $1
-wait
-# please write the domain in the script
-bash /root/tools/js_files/save2.sh
-wait
-git clone https://github.com/GerbenJavado/LinkFinder.git
-cd LinkFinder
-wait
-for i in $(cat /root/tools/js_files/JS_files.txt); do python3 /root/tools/js_files/LinkFinder/linkfinder.py -i "$i" -o cli >> /root/tools/js_files/wordlist.txt ;done
+# Creating a directory if it doesn't exist
+new_dir="${ammar}/Analysis"
+mkdir -p "$new_dir"
+cd "$new_dir"
 
-cat  /usr/share/seclists/Discovery/Web-Content/common.txt  /root/tools/js_files/wordlist.txt > /root/tools/js_files/wordlists_temp.txt
+# Assuming $1 is the domain, ensure it's passed to the script
+python3 "${new_dir}/URLs.py" "$1"
 
-cat /root/tools/js_files/wordlists_temp.txt | sort -u | uniq > /root/tools/js_files/wordlists.txt
+# Running additional scripts
+bash "${new_dir}/save2.sh"
+
+# Clone LinkFinder if it doesn't exist
+if [ ! -d "LinkFinder" ]; then
+    git clone https://github.com/GerbenJavado/LinkFinder.git
+    cd LinkFinder
+else
+    cd LinkFinder
+    git pull
+fi
+
+# Analyze JavaScript files
+for i in $(cat "${new_dir}/JS_files.txt"); do 
+    python3 linkfinder.py -i "$i" -o cli >> "${new_dir}/wordlist.txt"
+done
+
+# Combine and deduplicate wordlists
+cat /usr/share/seclists/Discovery/Web-Content/common.txt "${new_dir}/wordlist.txt" | sort -u > "${new_dir}/wordlists.txt"
 
 # End of the scripts
-
-echo -e "\033[34m[+] I save the wordlist in this path /root/tools/js_files/wordlists.txt and added with /usr/share/seclists/Discovery/Web-Content/common.txt list [+]\033[0m"
+echo -e "\033[34m[+] I saved the wordlist in this path /root/tools/js_files/wordlists.txt and added with /usr/share/seclists/Discovery/Web-Content/common.txt list [+]\033[0m"
